@@ -18,16 +18,17 @@ router.post(
 	],
 	async (req, res) => {
 		//  If there are errors, return bad request and the errors
+		let success = false;
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
+			return res.status(400).json({ success, errors: errors.array() });
 		}
 
 		try {
 			// Check wheter the user with this email exists already
 			let user = await User.findOne({ email: req.body.email });
 			if (user) {
-				return res.status(400).json({ error: 'User with this email is already present' });
+				return res.status(400).json({ success, error: 'User with this email is already present' });
 			}
 			const salt = await bcrypt.genSalt(10);
 			const secPass = await bcrypt.hash(req.body.password, salt);
@@ -45,8 +46,9 @@ router.post(
 			};
 			const authToken = jwt.sign(data, JWT_SECRET);
 
-			res.json({ authToken });
 			// res.json(user);
+			success = true;
+			res.json({ success, authToken });
 		} catch (error) {
 			console.error(error.message);
 			res.status(500).send('Internal Server Error');
@@ -57,7 +59,7 @@ router.post(
 //  ROUTE 2: Authenticate a User using: POST "/api/auth/login". No login required
 router.post(
 	'/login',
-	[body('email', 'Enter a valid email').isEmail(), body('password', 'Password lcan not br blank').exists()],
+	[body('email', 'Enter a valid email').isEmail(), body('password', 'Password can not be blank').exists()],
 	async (req, res) => {
 		let success = false;
 		//  If there are errors, return bad request and the errors
