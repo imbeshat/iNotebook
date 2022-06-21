@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const Login = (props) => {
 	const [credentials, setCredentials] = useState({ email: '', password: '' });
 	let history = useNavigate();
 
@@ -20,8 +20,9 @@ const Login = () => {
 			//Save the auth token and redirect
 			localStorage.setItem('token', json.authtoken);
 			history('/');
+			props.showAlert('Logged in successfull', 'success');
 		} else {
-			alert('Invalid Creds');
+			props.showAlert('Invalid Credentials', 'danger');
 		}
 	};
 	const onChange = (e) => {
@@ -60,12 +61,7 @@ const Login = () => {
 						onChange={onChange}
 					/>
 				</div>
-				<div className='mb-3 form-check'>
-					<input type='checkbox' className='form-check-input' id='exampleCheck1' />
-					<label className='form-check-label' htmlFor='exampleCheck1'>
-						Check me out
-					</label>
-				</div>
+
 				<button type='submit' className='btn btn-primary'>
 					Submit
 				</button>
